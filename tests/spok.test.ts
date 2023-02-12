@@ -23,7 +23,7 @@ describe('spok', () => {
     });
 
     it('initialize', async () => {
-        const tx = await program.methods
+        await program.methods
             .initialize()
             .accounts({
                 mint: mint.publicKey,
@@ -34,23 +34,23 @@ describe('spok', () => {
             })
             .signers([userKp, mint])
             .rpc();
-        console.log('Your transaction signature', tx);
-    });
 
-    it('mines', async () => {
         tokenAccount = await getOrCreateAssociatedTokenAccount(conn, userKp, mint.publicKey, userKp.publicKey);
-
-        const tx = await program.methods
-            .mine(Buffer.from([]))
-            .accounts({
-                mint: mint.publicKey,
-                payerTa: tokenAccount.address,
-                payer: userKp.publicKey,
-                spok,
-                tokenProgram: TOKEN_PROGRAM_ID,
-            })
-            .signers([userKp])
-            .rpc();
-        console.log('Your transaction signature', tx);
     });
+
+    for (let i = 0; i < 50; i++) {
+        it(`mines ${i}`, async () => {
+            await program.methods
+                .mine(Buffer.from([]))
+                .accounts({
+                    mint: mint.publicKey,
+                    payerTa: tokenAccount.address,
+                    payer: userKp.publicKey,
+                    spok,
+                    tokenProgram: TOKEN_PROGRAM_ID,
+                })
+                .signers([userKp])
+                .rpc();
+        });
+    }
 });

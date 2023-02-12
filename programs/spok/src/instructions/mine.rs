@@ -25,7 +25,7 @@ pub struct Mine<'info> {
     #[account(mut)]
     pub mint: Account<'info, Mint>,
 
-    #[account(seeds = [b"spok"], bump = spok.bump)]
+    #[account(mut, seeds = [b"spok"], bump = spok.bump)]
     pub spok: Account<'info, Spok>,
 
     pub token_program: Program<'info, Token>,
@@ -78,6 +78,7 @@ pub fn handler(ctx: Context<Mine>, nonce: Vec<u8>) -> Result<()> {
 
         spok.last_target_slot = current_slot;
         spok.target = new_target.to_le_bytes();
+        spok.mints = 0;
         msg!("TARGET ADJUSTMENT! New target is 0x{:02x}", new_target);
     } else {
         msg!(
