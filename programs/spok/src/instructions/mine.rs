@@ -1,7 +1,7 @@
 use crate::{
     constants::{
-        MAX_TARGET, MAX_TARGET_ADJ, MINTS_PER_TARGET_PERIOD, MIN_TARGET_ADJ,
-        SLOTS_PER_SUBSIDY_PERIOD, SLOTS_PER_TARGET_PERIOD,
+        MAX_TARGET, MAX_TARGET_ADJ, MINTS_PER_SUBSIDY_PERIOD, MINTS_PER_TARGET_PERIOD,
+        MIN_TARGET_ADJ, SLOTS_PER_TARGET_PERIOD,
     },
     errors::SpokError,
     state::Spok,
@@ -39,7 +39,7 @@ pub fn handler(ctx: Context<Mine>, nonce: Vec<u8>) -> Result<()> {
 
     let mut val = nonce;
     val.extend_from_slice(&payer_ta.key().to_bytes());
-    val.push(spok.mints);
+    val.extend_from_slice(&spok.mints.to_be_bytes());
 
     let target = Hash(spok.target);
     let input_hash = keccak::extend_and_hash(&target, &val);
@@ -66,7 +66,7 @@ pub fn handler(ctx: Context<Mine>, nonce: Vec<u8>) -> Result<()> {
     let current_slot = Clock::get()?.slot;
 
     // adjust difficulty
-    if spok.mints == MINTS_PER_TARGET_PERIOD {
+    if spok.mints % MINTS_PER_TARGET_PERIOD as u64 == 0 {
         let target_adj = ((current_slot - spok.last_target_slot) as f64
             / SLOTS_PER_TARGET_PERIOD as f64)
             .min(MAX_TARGET_ADJ)
@@ -78,17 +78,16 @@ pub fn handler(ctx: Context<Mine>, nonce: Vec<u8>) -> Result<()> {
 
         spok.last_target_slot = current_slot;
         spok.target = new_target.to_be_bytes();
-        spok.mints = 0;
         msg!("ADJUSTMENT! Target adjusted by {}", target_adj);
     } else {
         msg!(
             "{} mints left before adjustment",
-            MINTS_PER_TARGET_PERIOD - spok.mints
+            spok.mints % MINTS_PER_TARGET_PERIOD as u64
         );
     }
 
     // adjust subsidy
-    if current_slot > spok.last_halvening_slot + SLOTS_PER_SUBSIDY_PERIOD {
+    if spok.mints % MINTS_PER_SUBSIDY_PERIOD as u64 == 0 {
         spok.last_halvening_slot = current_slot;
         spok.subsidy /= 2;
         msg!("HALVENING! New subsidy is {}", spok.subsidy);

@@ -48,13 +48,13 @@ describe('spok', () => {
             const s = await program.account.spok.fetch(spok);
             const target = Buffer.from(s.target);
             const targetValue = parseInt(target.toString('hex'), 16);
-            const mints = Buffer.from([s.mints]);
+            const mints = s.mints.toBuffer('be', 8);
 
             console.log('target is', target.toString('hex'));
             console.log('last minted slot is', s.lastTargetSlot.toNumber());
 
-            for (let j = 0; j < 256; j++) {
-                const nonce = Buffer.from([j]);
+            for (let j = 0; j < 10000; j++) {
+                const nonce = Buffer.from(j.toString(2), 'binary');
                 const inputHash = createKeccakHash('keccak256')
                     .update(Buffer.concat([target, nonce, tokenAccount.address.toBuffer(), mints]))
                     .digest('hex');
@@ -63,7 +63,7 @@ describe('spok', () => {
 
                 if (inputValue < targetValue) {
                     console.log('found input with nonce', j);
-                    // console.log('input hash', inputHash);
+                    console.log('input hash', inputHash);
 
                     await program.methods
                         .mine(nonce)
@@ -80,7 +80,7 @@ describe('spok', () => {
                     break;
                 }
 
-                if (j === 255) {
+                if (j === 9999) {
                     console.log('Need more bytes!');
                 }
             }
