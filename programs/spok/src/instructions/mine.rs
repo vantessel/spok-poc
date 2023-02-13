@@ -37,9 +37,9 @@ pub fn handler(ctx: Context<Mine>, nonce: Vec<u8>) -> Result<()> {
     let payer_ta = &ctx.accounts.payer_ta;
     let token_program = &ctx.accounts.token_program;
 
-    // nonce and token account
     let mut val = nonce;
     val.extend_from_slice(&payer_ta.key().to_bytes());
+    val.push(spok.mints);
 
     let target = Hash(spok.target);
     let input_hash = keccak::extend_and_hash(&target, &val);
@@ -72,14 +72,14 @@ pub fn handler(ctx: Context<Mine>, nonce: Vec<u8>) -> Result<()> {
             .min(MAX_TARGET_ADJ)
             .max(MIN_TARGET_ADJ);
 
-        let new_target = (U256::from_le_bytes(spok.target).as_f64() * target_adj)
+        let new_target = (U256::from_be_bytes(spok.target).as_f64() * target_adj)
             .as_u256()
             .min(U256::from_be_bytes(MAX_TARGET));
 
         spok.last_target_slot = current_slot;
-        spok.target = new_target.to_le_bytes();
+        spok.target = new_target.to_be_bytes();
         spok.mints = 0;
-        msg!("TARGET ADJUSTMENT! New target is 0x{:02x}", new_target);
+        msg!("ADJUSTMENT! Target adjusted by {}", target_adj);
     } else {
         msg!(
             "{} mints left before adjustment",
