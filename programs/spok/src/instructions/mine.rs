@@ -72,13 +72,17 @@ pub fn handler(ctx: Context<Mine>, nonce: Vec<u8>) -> Result<()> {
             .min(MAX_TARGET_ADJ)
             .max(MIN_TARGET_ADJ);
 
-        let new_target = (U256::from_be_bytes(spok.target).as_f64() * target_adj)
-            .as_u256()
-            .min(U256::from_be_bytes(MAX_TARGET));
+        let current_target = U256::from_be_bytes(spok.target).as_f64();
+
+        let new_target =
+            (current_target * target_adj).min(U256::from_be_bytes(MAX_TARGET).as_f64());
 
         spok.last_target_slot = current_slot;
-        spok.target = new_target.to_be_bytes();
-        msg!("ADJUSTMENT! Target adjusted by {}", target_adj);
+        spok.target = new_target.as_u256().to_be_bytes();
+        msg!(
+            "ADJUSTMENT! Target adjusted by {:.2}",
+            new_target / current_target
+        );
     } else {
         msg!(
             "{} mints left before adjustment",

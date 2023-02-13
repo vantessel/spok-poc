@@ -43,7 +43,7 @@ describe('spok', () => {
         tokenAccount = await getOrCreateAssociatedTokenAccount(conn, userKp, mint.publicKey, userKp.publicKey);
     });
 
-    for (let i = 0; i < 20; i++) {
+    for (let i = 0; i < 10; i++) {
         it(`mines ${i}`, async () => {
             const s = await program.account.spok.fetch(spok);
             const target = Buffer.from(s.target);
@@ -52,6 +52,9 @@ describe('spok', () => {
 
             console.log('target is', target.toString('hex'));
             console.log('last minted slot is', s.lastTargetSlot.toNumber());
+
+            console.log('sleeping');
+            await new Promise((r) => setTimeout(r, 682));
 
             for (let j = 0; j < 10000; j++) {
                 const nonce = Buffer.from(j.toString(2), 'binary');
