@@ -82,7 +82,7 @@ pub fn handler(ctx: Context<Mine>, nonce: Vec<u8>) -> Result<()> {
     } else {
         msg!(
             "{} mints left before adjustment",
-            spok.mints % MINTS_PER_TARGET_PERIOD as u64
+            MINTS_PER_TARGET_PERIOD as u64 - spok.mints % MINTS_PER_TARGET_PERIOD as u64
         );
     }
 
