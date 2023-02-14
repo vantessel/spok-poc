@@ -63,26 +63,22 @@ pub fn handler(ctx: Context<Mine>, nonce: Vec<u8>) -> Result<()> {
 
     spok.mints += 1;
 
-    let current_slot = Clock::get()?.slot;
-
     // adjust difficulty
     if spok.mints % MINTS_PER_TARGET_PERIOD == 0 {
+        let current_slot = Clock::get()?.slot;
+
         let target_adj = ((current_slot - spok.last_target_slot) as f64
             / SLOTS_PER_TARGET_PERIOD as f64)
             .min(MAX_TARGET_ADJ)
             .max(MIN_TARGET_ADJ);
 
         let current_target = U256::from_be_bytes(spok.target).as_f64();
-
         let new_target =
             (current_target * target_adj).min(U256::from_be_bytes(MAX_TARGET).as_f64());
 
         spok.last_target_slot = current_slot;
         spok.target = new_target.as_u256().to_be_bytes();
-        msg!(
-            "ADJUSTMENT! Target adjusted by {:.2}",
-            new_target / current_target
-        );
+        msg!("ADJUSTMENT! Target adjusted by {:.2}", target_adj);
     } else {
         msg!(
             "{} mints left before adjustment",
@@ -92,6 +88,8 @@ pub fn handler(ctx: Context<Mine>, nonce: Vec<u8>) -> Result<()> {
 
     // adjust subsidy
     if spok.mints % MINTS_PER_SUBSIDY_PERIOD == 0 {
+        let current_slot = Clock::get()?.slot;
+
         spok.last_halvening_slot = current_slot;
         spok.subsidy /= 2;
         msg!("HALVENING! New subsidy is {}", spok.subsidy);
