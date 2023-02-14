@@ -13,8 +13,8 @@ use instructions::*;
 pub mod spok {
     use super::*;
 
-    pub fn initialize(ctx: Context<Initialize>) -> Result<()> {
-        initialize::handler(ctx)
+    pub fn genesis(ctx: Context<Genesis>) -> Result<()> {
+        genesis::handler(ctx)
     }
 
     pub fn mine(ctx: Context<Mine>, nonce: Vec<u8>) -> Result<()> {

@@ -29,7 +29,7 @@ describe('spok', () => {
 
     it('initialize', async () => {
         await program.methods
-            .initialize()
+            .genesis()
             .accounts({
                 mint: mint.publicKey,
                 payer: userKp.publicKey,

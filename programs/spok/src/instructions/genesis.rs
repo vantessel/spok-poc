@@ -6,7 +6,7 @@ use anchor_lang::prelude::*;
 use anchor_spl::token::{Mint, Token};
 
 #[derive(Accounts)]
-pub struct Initialize<'info> {
+pub struct Genesis<'info> {
     #[account(mut)]
     pub payer: Signer<'info>,
 
@@ -20,7 +20,7 @@ pub struct Initialize<'info> {
     pub token_program: Program<'info, Token>,
 }
 
-pub fn handler(ctx: Context<Initialize>) -> Result<()> {
+pub fn handler(ctx: Context<Genesis>) -> Result<()> {
     let spok = &mut ctx.accounts.spok;
 
     let current_slot = Clock::get()?.slot;

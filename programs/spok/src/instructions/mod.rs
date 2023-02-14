@@ -1,5 +1,5 @@
-pub mod initialize;
+pub mod genesis;
 pub mod mine;
 
-pub use initialize::*;
+pub use genesis::*;
 pub use mine::*;
