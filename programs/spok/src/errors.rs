@@ -4,4 +4,7 @@ use anchor_lang::prelude::*;
 pub enum SpokError {
     #[msg("Invalid hash")]
     InvalidHash,
+
+    #[msg("Supply fully minted")]
+    FullyMinted,
 }

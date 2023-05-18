@@ -22,10 +22,10 @@ pub struct Mine<'info> {
     #[account(mut, associated_token::mint = spok.mint, associated_token::authority = payer)]
     pub payer_ta: Account<'info, TokenAccount>,
 
-    #[account(mut)]
+    #[account(mut, address = spok.mint, mint::authority = spok)]
     pub mint: Account<'info, Mint>,
 
-    #[account(mut, seeds = [b"spok"], bump = spok.bump)]
+    #[account(mut, seeds = [b"spok"], bump = spok.bump, constraint = spok.subsidy > 0 @ SpokError::FullyMinted)]
     pub spok: Account<'info, Spok>,
 
     pub token_program: Program<'info, Token>,
