@@ -5,6 +5,12 @@ import { Account, getOrCreateAssociatedTokenAccount } from '@solana/spl-token';
 import { Spok } from '../target/types/spok';
 import createKeccakHash from 'keccak';
 
+const MINT_KP = [
+    28, 119, 210, 220, 220, 22, 212, 71, 35, 27, 103, 208, 7, 65, 131, 171, 230, 106, 92, 12, 45, 241, 34, 150, 219,
+    158, 249, 65, 102, 210, 128, 72, 189, 230, 237, 222, 148, 210, 45, 105, 113, 204, 47, 233, 35, 120, 212, 216, 211,
+    235, 138, 29, 8, 247, 5, 219, 81, 129, 13, 13, 138, 176, 121, 108,
+];
+
 describe('spok', () => {
     beforeEach(() => {
         global.console = require('console');
@@ -16,7 +22,8 @@ describe('spok', () => {
 
     const conn = program.provider.connection;
 
-    const mint = anchor.web3.Keypair.generate();
+    const mint = anchor.web3.Keypair.fromSecretKey(new Uint8Array(MINT_KP));
+    console.log('mint', mint.publicKey.toBase58());
     const [spok] = anchor.web3.PublicKey.findProgramAddressSync([Buffer.from('spok')], program.programId);
 
     const userKp = anchor.web3.Keypair.generate();
@@ -24,6 +31,7 @@ describe('spok', () => {
 
     beforeAll(async () => {
         const sig = await conn.requestAirdrop(userKp.publicKey, 1e12);
+        await conn.requestAirdrop(new anchor.web3.PublicKey('2VSGo3T3XLXWdBuFDPeJudyoDSH8uVbJu6YD95WDvfS4'), 1e12);
         await conn.confirmTransaction(sig);
     });
 
